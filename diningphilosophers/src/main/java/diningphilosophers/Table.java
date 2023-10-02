@@ -5,12 +5,13 @@ import java.io.IOException;
 public class Table {
 
     public static void main(String[] args) {
-        ChopStick s1 = new ChopStick();
-        ChopStick s2 = new ChopStick();
-        ChopStick s3 = new ChopStick();
-        Philosopher rigaud = new Philosopher("Rigaud", s1, s2);
-        Philosopher conchon = new Philosopher("Conchon", s2, s3);
-        Philosopher bastide = new Philosopher("Bastide", s3, s1);
+        //Use Clear Variable Name
+        ChopStick stick1 = new ChopStick();
+        ChopStick stick2 = new ChopStick();
+        ChopStick stick3 = new ChopStick();
+        Philosopher rigaud = new Philosopher("Rigaud", stick1, stick2);
+        Philosopher conchon = new Philosopher("Conchon", stick2, stick3);
+        Philosopher bastide = new Philosopher("Bastide", stick3, stick1);
         rigaud.start();
         conchon.start();
         bastide.start();

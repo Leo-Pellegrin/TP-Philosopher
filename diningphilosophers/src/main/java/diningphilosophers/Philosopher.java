@@ -8,84 +8,89 @@ public class Philosopher
         extends Thread {
 
     private static int seed = 1;
-    private final Random myRandom = new Random(System.currentTimeMillis() + seed++);
+    private final Random random = new Random(System.currentTimeMillis() + seed++);
     private final static int DELAY = 1000;
-    private final String myName;
-    private final ChopStick myLeftStick;
-    private final ChopStick myRightStick;
-    private boolean jeContinue = true;
+    private final String name;
+    private final ChopStick leftStick;
+    private final ChopStick rightStick;
+    private boolean isContinuing = true; // do not mix english and french it's a bad practice
 
-    public Philosopher(String name, ChopStick left, ChopStick right) {
-        myName = name;
-        myLeftStick = left;
-        myRightStick = right;
+    public Philosopher(String name, ChopStick leftStick, ChopStick rightStick) {
+        //Another way to write constructor. More Clear and easy to use
+        this.name = name;
+        this.leftStick = leftStick;
+        this.rightStick = rightStick;
     }
 
     @Override
     public void run() {
-        while (jeContinue) {
+        while (isContinuing) {
             try {
                 think();
                 // 2-Step locking protocol
                 // 1st step : try to get resources
-                if (tryTakeStick(myLeftStick)) {
-                    if (tryTakeStick(myRightStick)) {
-                        // success : process
-                        eat();
-                        // release resources
-                        releaseStick(myLeftStick);
-                        releaseStick(myRightStick);
-                    } else {
-                        // failure : release resources
-                        releaseStick(myLeftStick);
-                    }
+
+                //If block inside each other are a bad practice try making your code clear and easy to read
+                if (!tryTakeStick(leftStick)) {
+                    continue;    
                 }
+                if (!tryTakeStick(rightStick)) {
+                    // success : process
+                     releaseStick(leftStick);
+                     continue;
+                } 
+                
+                eat();
+                // release resources
+                releaseStick(leftStick);
+                releaseStick(rightStick);
                 // try again
             } catch (InterruptedException ex) {
                 Logger.getLogger("Table").log(Level.SEVERE, "{0} Interrupted", this.getName());
             }
         }
-        System.out.println(myName + " leaves table");
+        System.out.println(name + " leaves table");
 
     }
 
     public void leaveTable() {
-        jeContinue = false;
+        isContinuing = false;
     }
 
     private boolean tryTakeStick(ChopStick stick) throws InterruptedException {
-        int delay = myRandom.nextInt(100 + DELAY);
+        int delay = random.nextInt(100 + DELAY);
         boolean result = stick.tryTake(delay);
         if (result) {
-            System.out.println(myName + " took " + stick + " before " + delay + " ms");
+            System.out.println(name + " took " + stick + " before " + delay + " ms");
         } else {
-            System.out.println(myName + " could not take " + stick + " before " + delay + " ms");
+            System.out.println(name + " could not take " + stick + " before " + delay + " ms");
         }
         return result;
     }
 
     private void releaseStick(ChopStick stick) {
         stick.release();
-        System.out.println(myName + " releases " + stick);
+        System.out.println(name + " releases " + stick);
     }
 
     private void think() {
-        int delay = myRandom.nextInt(100 + DELAY);
-        System.out.println(myName + " Starts Thinking for: " + delay + " ms");
+        int delay = random.nextInt(100 + DELAY);
+        System.out.println(name + " Starts Thinking for: " + delay + " ms");
         try {
             sleep(delay);
         } catch (InterruptedException ex) {
         }
-        System.out.println(myName + " Stops Thinking");
+        System.out.println(name + " Stops Thinking");
     }
 
     private void eat() {
-        int delay = myRandom.nextInt(100 + DELAY);
-        System.out.println(myName + " Starts Eating for:" + delay + " ms");
+        int delay = random.nextInt(100 + DELAY);
+        System.out.println(name + " Starts Eating for:" + delay + " ms");
         try {
             sleep(delay);
         } catch (InterruptedException ex) {
+            //Empty Catch Block is a bad practice try rethrowing the exception 
         }
-        System.out.println(myName + " Stops Eating");
+        System.out.println(name + " Stops Eating");
     }
 }

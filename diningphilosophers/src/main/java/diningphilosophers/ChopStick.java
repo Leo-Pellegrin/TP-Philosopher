@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ChopStick {
 
     private static int stickCount = 0;
-    private boolean iAmFree = true;
+    private boolean isFree = true;
     private final int myNumber;
 
     public ChopStick() {
@@ -14,21 +14,19 @@ public class ChopStick {
     }
 
     public boolean tryTake(int delay) throws InterruptedException {
-        if (!iAmFree) {
-            boolean locked = lock.tryLock(300, java.util.concurrent.TimeUnit.MILLISECONDS);
-            if (!locked) // Toujours pas libre, on abandonne
-            {
-                return false; // Echec
-            }
+        if (isFree) {
+            isFree = false;
+            // Pas utile de faire notifyAll ici, personne n'attend qu'elle soit occupée
+            return true; // Succès
         }
-        iAmFree = false;
-        // Pas utile de faire notifyAll ici, personne n'attend qu'elle soit occupée
-        return true; // Succès
+        //Better Way to write your if statement
+        boolean locked = lock.tryLock(300, java.util.concurrent.TimeUnit.MILLISECONDS);
+       return locked;
     }
 
     synchronized public void release() {
         try{
-            iAmFree = true;
+            isFree = true;
             System.out.println("Stick " + myNumber + " Released");
         }
         finally{
